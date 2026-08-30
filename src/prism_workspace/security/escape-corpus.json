@@ -1,0 +1,1213 @@
+{
+    "schema_version": 1,
+    "corpus_version": "1",
+    "encoding": "base64-bytes",
+    "cases": [
+        {
+            "id": "trv-0001",
+            "path_base64": "Li4=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "The whole attack, unadorned. If nothing else in this corpus runs, this one must."
+        },
+        {
+            "id": "trv-0002",
+            "path_base64": "Li4v",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Trailing separator. Some normalisers treat a directory reference differently from a file one."
+        },
+        {
+            "id": "trv-0003",
+            "path_base64": "Li4vc2VjcmV0LnR4dA==",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "One level up, which is where a sibling workspace lives."
+        },
+        {
+            "id": "trv-0004",
+            "path_base64": "Li4vLi4vc2VjcmV0LnR4dA==",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Two levels up: out of the workspaces directory entirely."
+        },
+        {
+            "id": "trv-0005",
+            "path_base64": "Li4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vLi4vZXRjL3Bhc3N3ZA==",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "More levels than the root has. Every OS clamps at the filesystem root rather than erroring, so overshooting is free."
+        },
+        {
+            "id": "trv-0006",
+            "path_base64": "YS8uLi8uLi9zZWNyZXQudHh0",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Descend first. Defeats any check that only looks at the leading characters."
+        },
+        {
+            "id": "trv-0007",
+            "path_base64": "YS9iLy4uLy4uLy4uL3NlY3JldC50eHQ=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Descend two, ascend three. The off-by-one that a hand-written pop loop gets wrong."
+        },
+        {
+            "id": "trv-0008",
+            "path_base64": "Li8uLi9zZWNyZXQudHh0",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "A no-op segment in front, which is enough to defeat a `str_starts_with(.., \"..\")` check."
+        },
+        {
+            "id": "trv-0009",
+            "path_base64": "Li4vLi9zZWNyZXQudHh0",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "A no-op segment in the middle."
+        },
+        {
+            "id": "trv-0010",
+            "path_base64": "YS8uLy4uLy4uL3NlY3JldC50eHQ=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "No-ops interleaved with real movement."
+        },
+        {
+            "id": "trv-0011",
+            "path_base64": "Li4vL3NlY3JldC50eHQ=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Doubled separator. An empty segment must collapse, not count as a level."
+        },
+        {
+            "id": "trv-0012",
+            "path_base64": "Li4vLi4vLi9zZWNyZXQudHh0",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Mixed no-ops and ascents."
+        },
+        {
+            "id": "trv-0013",
+            "path_base64": "YS8uLi8uLg==",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Ends on the ascent, with no filename after it."
+        },
+        {
+            "id": "trv-0014",
+            "path_base64": "c3ViZGlyLy4uLy4uL3NlY3JldC50eHQ=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "The shape a model actually produces when it has lost track of where it is."
+        },
+        {
+            "id": "trv-0015",
+            "path_base64": "Li5cc2VjcmV0LnR4dA==",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Backslash separator. Escapes on Windows; on Linux it is a FILENAME containing a backslash \u2014 which is not safe, it is a file that becomes an escape the moment the workspace is opened on Windows."
+        },
+        {
+            "id": "trv-0016",
+            "path_base64": "Li5cLi5cc2VjcmV0LnR4dA==",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Two levels, Windows spelling."
+        },
+        {
+            "id": "trv-0017",
+            "path_base64": "YVwuLlwuLlxzZWNyZXQudHh0",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Descend-then-ascend, Windows spelling."
+        },
+        {
+            "id": "trv-0018",
+            "path_base64": "Li4vXHNlY3JldC50eHQ=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Mixed separators. Whichever one a normaliser handles, the other is the one used."
+        },
+        {
+            "id": "trv-0019",
+            "path_base64": "Li5cL3NlY3JldC50eHQ=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Mixed separators the other way round."
+        },
+        {
+            "id": "trv-0020",
+            "path_base64": "Li4u",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Three dots. MEASURED: a perfectly legal directory name on Linux, and a name Windows refuses outright. Same input, two outcomes \u2014 so a workspace written on one platform is not the same workspace on the other, which is reason enough by itself."
+        },
+        {
+            "id": "trv-0021",
+            "path_base64": "Li4uLi8vc2VjcmV0LnR4dA==",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The classic single-pass-filter bypass: strip one `../` from this and what is left is `../`."
+        },
+        {
+            "id": "trv-0022",
+            "path_base64": "Li47L3NlY3JldC50eHQ=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The `..;` token, which several routers and proxies normalise back to `..` before anything else sees it."
+        },
+        {
+            "id": "trv-0023",
+            "path_base64": "Li4vc2VjcmV0LnR4dC5iYWs=",
+            "hazard": "traversal",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Traversal wearing an innocuous extension, in case a guard branches on file type before it branches on shape."
+        },
+        {
+            "id": "abs-0001",
+            "path_base64": "L2V0Yy9wYXNzd2Q=",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "The canonical one. Note that a leading slash is drive-root-relative on Windows too, so this escapes on both."
+        },
+        {
+            "id": "abs-0002",
+            "path_base64": "Lw==",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "The filesystem root itself."
+        },
+        {
+            "id": "abs-0003",
+            "path_base64": "Ly4uL3NlY3JldC50eHQ=",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Absolute AND traversing. Refused as absolute because that check comes first; the ORDER of checks is part of the contract, since it decides which code a consumer alerts on."
+        },
+        {
+            "id": "abs-0004",
+            "path_base64": "L3Byb2Mvc2VsZi9lbnZpcm9u",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Where a Linux process keeps its environment, which is where the API keys are."
+        },
+        {
+            "id": "abs-0005",
+            "path_base64": "L2Rldi9zdGRpbg==",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "A read that blocks forever is a denial of service that looks like a slow model."
+        },
+        {
+            "id": "abs-0006",
+            "path_base64": "QzpcV2luZG93c1xTeXN0ZW0zMlxjb25maWdcU0FN",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Drive-qualified. On Linux this is one long filename \u2014 stored happily, and an escape as soon as the disk is mounted by a Windows worker."
+        },
+        {
+            "id": "abs-0007",
+            "path_base64": "QzovV2luZG93cy93aW4uaW5p",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Windows accepts forward slashes, so a guard that only rejects backslashes rejects nothing."
+        },
+        {
+            "id": "abs-0008",
+            "path_base64": "Yzovd2luZG93cy93aW4uaW5p",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Lowercase drive letter, because a case-sensitive check on `C:` is a check on nothing."
+        },
+        {
+            "id": "abs-0009",
+            "path_base64": "QzpzZWNyZXQudHh0",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Drive-RELATIVE: resolves against whatever the current directory on C: happens to be. No separator anywhere, so it does not look like a path at all."
+        },
+        {
+            "id": "abs-0010",
+            "path_base64": "Wjov",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "A mapped network drive, which is somebody else's filesystem."
+        },
+        {
+            "id": "abs-0011",
+            "path_base64": "XHNlY3JldC50eHQ=",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Root of the current drive on Windows."
+        },
+        {
+            "id": "abs-0012",
+            "path_base64": "XFdpbmRvd3Ncd2luLmluaQ==",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Root-relative with a real target."
+        },
+        {
+            "id": "abs-0013",
+            "path_base64": "YTpi",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Genuinely ambiguous: a one-letter directory with an alternate data stream, or drive `a:` relative. Windows reads it as the drive, so this is refused as absolute rather than as a stream."
+        },
+        {
+            "id": "abs-0014",
+            "path_base64": "L3Zhci93d3cvLmVudg==",
+            "hazard": "absolute-path",
+            "refusal": "path_is_absolute",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "The single highest-value file on a Laravel host, and the one a compromised agent asks for first."
+        },
+        {
+            "id": "unc-0001",
+            "path_base64": "XFxzZXJ2ZXJcc2hhcmVcc2VjcmV0LnR4dA==",
+            "hazard": "unc-path",
+            "refusal": "path_is_unc_or_device_namespace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "A UNC path reaches a machine that is not this one. Exfiltration by write, with no outbound HTTP for anything to notice."
+        },
+        {
+            "id": "unc-0002",
+            "path_base64": "Ly9zZXJ2ZXIvc2hhcmUvc2VjcmV0LnR4dA==",
+            "hazard": "unc-path",
+            "refusal": "path_is_unc_or_device_namespace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Windows accepts the forward-slash UNC form. On POSIX a doubled leading slash is implementation-defined, so it is refused on both platforms for the same reason: one input must get one answer."
+        },
+        {
+            "id": "unc-0003",
+            "path_base64": "XFw/XEM6XFdpbmRvd3Ncd2luLmluaQ==",
+            "hazard": "unc-path",
+            "refusal": "path_is_unc_or_device_namespace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "The extended-length prefix. It also DISABLES Win32 path normalisation, so every assumption a guard made about trailing dots stops holding."
+        },
+        {
+            "id": "unc-0004",
+            "path_base64": "XFwuXFBoeXNpY2FsRHJpdmUw",
+            "hazard": "unc-path",
+            "refusal": "path_is_unc_or_device_namespace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "The device namespace: raw block-device access, not a file."
+        },
+        {
+            "id": "unc-0005",
+            "path_base64": "XFw/XFVOQ1xzZXJ2ZXJcc2hhcmVcc2VjcmV0LnR4dA==",
+            "hazard": "unc-path",
+            "refusal": "path_is_unc_or_device_namespace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "Extended-length UNC \u2014 remote and un-normalised at once."
+        },
+        {
+            "id": "unc-0006",
+            "path_base64": "Ly8vZXRjL3Bhc3N3ZA==",
+            "hazard": "unc-path",
+            "refusal": "path_is_unc_or_device_namespace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Three leading slashes, because a check for exactly two is a check for exactly two."
+        },
+        {
+            "id": "unc-0007",
+            "path_base64": "XFxsb2NhbGhvc3RcYyRcV2luZG93c1x3aW4uaW5p",
+            "hazard": "unc-path",
+            "refusal": "path_is_unc_or_device_namespace",
+            "on_posix": "confuses",
+            "on_windows": "escapes",
+            "note": "The admin share: the whole local C: drive, reached over a network path, from the local machine."
+        },
+        {
+            "id": "unc-0008",
+            "path_base64": "Ly8/L0M6L1dpbmRvd3Mvd2luLmluaQ==",
+            "hazard": "unc-path",
+            "refusal": "path_is_unc_or_device_namespace",
+            "on_posix": "escapes",
+            "on_windows": "escapes",
+            "note": "Extended-length prefix in its forward-slash spelling."
+        },
+        {
+            "id": "hom-0001",
+            "path_base64": "fi8uc3NoL2lkX3JzYQ==",
+            "hazard": "absolute-path",
+            "refusal": "path_uses_home_expansion",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "PHP does not expand `~`, so this lands inside as a directory literally named `~`. It is refused because everything a workspace hands a path to next \u2014 a shell, a build tool, a Python process, anything execution would introduce \u2014 does expand it."
+        },
+        {
+            "id": "hom-0002",
+            "path_base64": "fg==",
+            "hazard": "absolute-path",
+            "refusal": "path_uses_home_expansion",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The bare form."
+        },
+        {
+            "id": "hom-0003",
+            "path_base64": "fnJvb3QvLmJhc2hyYw==",
+            "hazard": "absolute-path",
+            "refusal": "path_uses_home_expansion",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Another user's home. Refused only when `~` leads the path; a file named `~$draft.docx`, which is what Word leaves behind, is fine."
+        },
+        {
+            "id": "dev-0001",
+            "path_base64": "Q09O",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The console."
+        },
+        {
+            "id": "dev-0002",
+            "path_base64": "UFJO",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The printer."
+        },
+        {
+            "id": "dev-0003",
+            "path_base64": "QVVY",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The auxiliary device."
+        },
+        {
+            "id": "dev-0004",
+            "path_base64": "TlVM",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The bit bucket \u2014 the worst failure mode of the group wherever it still applies, because the write reports success and the artifact is simply gone."
+        },
+        {
+            "id": "dev-0005",
+            "path_base64": "Q0xPQ0sk",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The system clock."
+        },
+        {
+            "id": "dev-0006",
+            "path_base64": "Q09NMQ==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A serial port."
+        },
+        {
+            "id": "dev-0007",
+            "path_base64": "Q09NOQ==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The last of them, in case a check hardcoded COM1 through COM4."
+        },
+        {
+            "id": "dev-0008",
+            "path_base64": "TFBUMQ==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A parallel port."
+        },
+        {
+            "id": "dev-0009",
+            "path_base64": "TFBUOQ==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "As above."
+        },
+        {
+            "id": "dev-0010",
+            "path_base64": "Q09OSU4k",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Console input, which is not in most published lists of reserved names."
+        },
+        {
+            "id": "dev-0011",
+            "path_base64": "Q09OT1VUJA==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Console output, likewise."
+        },
+        {
+            "id": "dev-0012",
+            "path_base64": "Y29u",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Lowercase. Device names are case-insensitive, so a case-sensitive list catches nothing."
+        },
+        {
+            "id": "dev-0013",
+            "path_base64": "Q09OLnR4dA==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "An extension does not help where the rule applies: Win32 matches the name before the first dot."
+        },
+        {
+            "id": "dev-0014",
+            "path_base64": "bnVsLmxvZw==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The most plausible accident in this whole corpus \u2014 an agent writing a log to a file it named `nul`."
+        },
+        {
+            "id": "dev-0015",
+            "path_base64": "cmVwb3J0cy9DT00xLnR4dA==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Reserved in every directory, not only the root."
+        },
+        {
+            "id": "dev-0016",
+            "path_base64": "QVVYLnRhci5neg==",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Two extensions; still the name before the first dot that counts."
+        },
+        {
+            "id": "dev-0017",
+            "path_base64": "Q09Nwrk=",
+            "hazard": "device-name",
+            "refusal": "path_is_reserved_device_name",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Superscript one. Win32 maps the superscript digits onto COM1-COM3, and no ASCII-only check sees it."
+        },
+        {
+            "id": "ads-0001",
+            "path_base64": "bm90ZXMudHh0OmhpZGRlbg==",
+            "hazard": "alternate-data-stream",
+            "refusal": "path_contains_alternate_data_stream",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "An NTFS alternate data stream. The bytes are stored, the directory listing shows `notes.txt` at its original size, and nothing an audit walks will find them."
+        },
+        {
+            "id": "ads-0002",
+            "path_base64": "bm90ZXMudHh0OmhpZGRlbjokREFUQQ==",
+            "hazard": "alternate-data-stream",
+            "refusal": "path_contains_alternate_data_stream",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "The explicit stream-type form."
+        },
+        {
+            "id": "ads-0003",
+            "path_base64": "bm90ZXMudHh0OjokREFUQQ==",
+            "hazard": "alternate-data-stream",
+            "refusal": "path_contains_alternate_data_stream",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "The default stream named explicitly \u2014 an old way of reading a file past a filter that matched on the exact name."
+        },
+        {
+            "id": "ads-0004",
+            "path_base64": "cmVwb3J0cy9zdW1tYXJ5Lm1kOm5vdGVz",
+            "hazard": "alternate-data-stream",
+            "refusal": "path_contains_alternate_data_stream",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "In a subdirectory."
+        },
+        {
+            "id": "ads-0005",
+            "path_base64": "OnNlY3JldA==",
+            "hazard": "alternate-data-stream",
+            "refusal": "path_contains_alternate_data_stream",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "A stream on the directory itself."
+        },
+        {
+            "id": "ali-0001",
+            "path_base64": "c2VjcmV0LnR4dC4=",
+            "hazard": "name-aliasing",
+            "refusal": "path_has_edge_dot_or_space",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "Win32 strips the trailing dot, so this IS `secret.txt` \u2014 a write that overwrites a file the caller believes it is not touching."
+        },
+        {
+            "id": "ali-0002",
+            "path_base64": "c2VjcmV0LnR4dC4uLg==",
+            "hazard": "name-aliasing",
+            "refusal": "path_has_edge_dot_or_space",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "Several dots, same collapse."
+        },
+        {
+            "id": "ali-0003",
+            "path_base64": "c2VjcmV0LnR4dCA=",
+            "hazard": "name-aliasing",
+            "refusal": "path_has_edge_dot_or_space",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "Trailing space, same collapse, and invisible in every log that prints it."
+        },
+        {
+            "id": "ali-0004",
+            "path_base64": "IHNlY3JldC50eHQ=",
+            "hazard": "name-aliasing",
+            "refusal": "path_has_edge_dot_or_space",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "Leading space. Preserved by some Win32 entry points and trimmed by others, which means the two ends of a copy can disagree about which file was meant."
+        },
+        {
+            "id": "ali-0005",
+            "path_base64": "cmVwb3J0cy4vc3VtbWFyeS5tZA==",
+            "hazard": "name-aliasing",
+            "refusal": "path_has_edge_dot_or_space",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "The alias on a DIRECTORY component, so the whole subtree lands somewhere else."
+        },
+        {
+            "id": "ali-0006",
+            "path_base64": "cmVwb3J0cyAvc3VtbWFyeS5tZA==",
+            "hazard": "name-aliasing",
+            "refusal": "path_has_edge_dot_or_space",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "The space form of the same."
+        },
+        {
+            "id": "ali-0007",
+            "path_base64": "ICAg",
+            "hazard": "name-aliasing",
+            "refusal": "path_has_edge_dot_or_space",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "Only spaces: a name that survives an emptiness check and then collapses to nothing."
+        },
+        {
+            "id": "ali-0008",
+            "path_base64": "UFJPR1JBfjEvc2VjcmV0LnR4dA==",
+            "hazard": "name-aliasing",
+            "refusal": "path_uses_short_name_alias",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "An 8.3 short name. On NTFS with short names enabled it aliases a long directory the listing shows under a completely different name."
+        },
+        {
+            "id": "ali-0009",
+            "path_base64": "TVlET0NVfjEuVFhU",
+            "hazard": "name-aliasing",
+            "refusal": "path_uses_short_name_alias",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "The file form."
+        },
+        {
+            "id": "ali-0010",
+            "path_base64": "cmVwb3J0cy9ET0NVTUV+Mg==",
+            "hazard": "name-aliasing",
+            "refusal": "path_uses_short_name_alias",
+            "on_posix": "confuses",
+            "on_windows": "reaches",
+            "note": "A second-generation alias, which is what you get once two long names share the first six characters."
+        },
+        {
+            "id": "enc-0001",
+            "path_base64": "JTJlJTJlJTJmc2VjcmV0LnR4dA==",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Percent-encoded `../`. This package never decodes, so unguarded it would simply create a strangely named file \u2014 refused because SOMETHING downstream decodes, and an agent asking for this is asking for traversal either way."
+        },
+        {
+            "id": "enc-0002",
+            "path_base64": "JTJFJTJFJTJGc2VjcmV0LnR4dA==",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Uppercase hex."
+        },
+        {
+            "id": "enc-0003",
+            "path_base64": "Li4lMmZzZWNyZXQudHh0",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Half-encoded: the dots plain, the separator encoded."
+        },
+        {
+            "id": "enc-0004",
+            "path_base64": "Li4lNWNzZWNyZXQudHh0",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The backslash form."
+        },
+        {
+            "id": "enc-0005",
+            "path_base64": "JTJlJTJlL3NlY3JldC50eHQ=",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The other half encoded."
+        },
+        {
+            "id": "enc-0006",
+            "path_base64": "JTI1MmUlMjUyZSUyNTJmc2VjcmV0LnR4dA==",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Double-encoded. Survives exactly one decode, which is how many decodes most pipelines do."
+        },
+        {
+            "id": "enc-0007",
+            "path_base64": "JWMwJWFlJWMwJWFlJWMwJWFmc2VjcmV0LnR4dA==",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Overlong UTF-8 for `.` and `/`. Rejected by any conformant decoder and accepted by a surprising number of real ones."
+        },
+        {
+            "id": "enc-0008",
+            "path_base64": "JWMxJTljc2VjcmV0LnR4dA==",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Overlong backslash \u2014 the IIS Unicode bug, still reachable through any lenient decoder."
+        },
+        {
+            "id": "enc-0009",
+            "path_base64": "JXVmZjBlJXVmZjBlJXUyMjE1c2VjcmV0LnR4dA==",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The `%u` form, which is not standards-based and which several Windows components accept anyway."
+        },
+        {
+            "id": "enc-0010",
+            "path_base64": "Li4lMDAvc2VjcmV0LnR4dA==",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Encoded null: truncates the path in any consumer that decodes and then hands the result to C."
+        },
+        {
+            "id": "enc-0011",
+            "path_base64": "JTJmZXRjJTJmcGFzc3dk",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "An encoded absolute path."
+        },
+        {
+            "id": "enc-0012",
+            "path_base64": "JTVjJTVjc2VydmVyJTVjc2hhcmU=",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "An encoded UNC path."
+        },
+        {
+            "id": "enc-0013",
+            "path_base64": "Li4lMjUyZnNlY3JldC50eHQ=",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Mixed single and double encoding, to defeat a decoder that loops until the string stops changing."
+        },
+        {
+            "id": "enc-0014",
+            "path_base64": "JTJlJTJlJTVjc2VjcmV0LnR4dA==",
+            "hazard": "encoded-separator",
+            "refusal": "path_contains_encoded_separator",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Encoded dots with an encoded backslash."
+        },
+        {
+            "id": "byt-0001",
+            "path_base64": "c2VjcmV0AC50eHQ=",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_null_byte",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A null byte truncates at the C boundary, so a PHP-level check sees `secret\\0.txt` and the syscall sees `secret`."
+        },
+        {
+            "id": "byt-0002",
+            "path_base64": "c2VjcmV0LnR4dAAucG5n",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_null_byte",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The extension-check bypass: PHP sees a `.png`, the filesystem sees a `.txt`."
+        },
+        {
+            "id": "byt-0003",
+            "path_base64": "AA==",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_null_byte",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A path that is one null byte. Not empty by any string test, and nothing at all by the time it lands."
+        },
+        {
+            "id": "byt-0004",
+            "path_base64": "bm90ZXMBLnR4dA==",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_control_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A control character. Illegal in a Windows filename, legal on Linux, so the same workspace is portable in one direction only."
+        },
+        {
+            "id": "byt-0005",
+            "path_base64": "bm90ZXMKLnR4dA==",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_control_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A newline. Every log line about this file becomes two, one of which the agent wrote."
+        },
+        {
+            "id": "byt-0006",
+            "path_base64": "bm90ZXMNCi50eHQ=",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_control_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "CRLF, for the log formats that split on it."
+        },
+        {
+            "id": "byt-0007",
+            "path_base64": "bm90ZXMJLnR4dA==",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_control_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A tab, for the ones that split on that."
+        },
+        {
+            "id": "byt-0008",
+            "path_base64": "bm90ZXN/LnR4dA==",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_control_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "DEL. Above the printable range rather than below it, which is where a `< 0x20` check stops looking."
+        },
+        {
+            "id": "byt-0009",
+            "path_base64": "bm90ZXMbWzJKY2xlYXIudHh0",
+            "hazard": "byte-injection",
+            "refusal": "path_contains_control_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "An ANSI escape sequence. Printing this listing to a terminal clears the terminal \u2014 the agent editing what its operator sees."
+        },
+        {
+            "id": "byt-0010",
+            "path_base64": "wyg=",
+            "hazard": "byte-injection",
+            "refusal": "path_is_not_valid_utf8",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Invalid UTF-8. What a byte-oriented filesystem stores and a UTF-8 API cannot round-trip."
+        },
+        {
+            "id": "byt-0011",
+            "path_base64": "7aCA",
+            "hazard": "byte-injection",
+            "refusal": "path_is_not_valid_utf8",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A lone surrogate encoded as UTF-8, which is not UTF-8."
+        },
+        {
+            "id": "byt-0012",
+            "path_base64": "8IKCrA==",
+            "hazard": "byte-injection",
+            "refusal": "path_is_not_valid_utf8",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "An overlong encoding of a character that has a short one, which is how two different byte strings become the same name."
+        },
+        {
+            "id": "byt-0013",
+            "path_base64": "bm90ZXP/LnR4dA==",
+            "hazard": "byte-injection",
+            "refusal": "path_is_not_valid_utf8",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A byte that begins no valid sequence."
+        },
+        {
+            "id": "byt-0014",
+            "path_base64": "wK7Ari9zZWNyZXQudHh0",
+            "hazard": "byte-injection",
+            "refusal": "path_is_not_valid_utf8",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Overlong `..` as raw bytes rather than percent-encoded \u2014 the same attack as enc-0007, one decoding layer further in."
+        },
+        {
+            "id": "dec-0001",
+            "path_base64": "4oCudHh0LmV4ZQ==",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A right-to-left override. Displays as `exe.txt` in every listing, every editor tab and every review UI. Trojan Source, applied to a filename."
+        },
+        {
+            "id": "dec-0002",
+            "path_base64": "cmVwb3J04oCuZmRwLnR4dA==",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The same trick mid-name, which reads as `report.pdf`."
+        },
+        {
+            "id": "dec-0003",
+            "path_base64": "4oCObm90ZXMudHh0",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A left-to-right mark: invisible, and enough to make two listings that look identical be different files."
+        },
+        {
+            "id": "dec-0004",
+            "path_base64": "4oCPbm90ZXMudHh0",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The right-to-left mark."
+        },
+        {
+            "id": "dec-0005",
+            "path_base64": "4oGmbm90ZXPigakudHh0",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Directional isolates, the modern replacement for the override characters and rarely on anyone's deny list."
+        },
+        {
+            "id": "dec-0006",
+            "path_base64": "2Jxub3Rlcy50eHQ=",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The Arabic letter mark."
+        },
+        {
+            "id": "dec-0007",
+            "path_base64": "4oCqbm90ZXMudHh0",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A left-to-right embedding."
+        },
+        {
+            "id": "dec-0008",
+            "path_base64": "4oCtbm90ZXMudHh0",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A left-to-right override."
+        },
+        {
+            "id": "dec-0009",
+            "path_base64": "4oCLbm90ZXMudHh0",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A zero-width space. Not a bidi character at all, and exactly as invisible."
+        },
+        {
+            "id": "dec-0010",
+            "path_base64": "77u/bm90ZXMudHh0",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A byte-order mark used as a filename character, which several tools strip and several do not."
+        },
+        {
+            "id": "dec-0011",
+            "path_base64": "wq1ub3Rlcy50eHQ=",
+            "hazard": "deception",
+            "refusal": "path_contains_invisible_character",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A soft hyphen: renders as nothing, or as a hyphen, depending on where it is line-wrapped."
+        },
+        {
+            "id": "dec-0012",
+            "path_base64": "cmVwb3J0c++8j3NlY3JldC50eHQ=",
+            "hazard": "deception",
+            "refusal": "path_contains_separator_homoglyph",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A fullwidth solidus. Not a separator to any filesystem, so this is ONE file whose name reads as a path \u2014 a listing a human scans as two directory levels."
+        },
+        {
+            "id": "dec-0013",
+            "path_base64": "cmVwb3J0c+KIlXNlY3JldC50eHQ=",
+            "hazard": "deception",
+            "refusal": "path_contains_separator_homoglyph",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The division slash."
+        },
+        {
+            "id": "dec-0014",
+            "path_base64": "cmVwb3J0c+KBhHNlY3JldC50eHQ=",
+            "hazard": "deception",
+            "refusal": "path_contains_separator_homoglyph",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The fraction slash."
+        },
+        {
+            "id": "dec-0015",
+            "path_base64": "cmVwb3J0c++8vHNlY3JldC50eHQ=",
+            "hazard": "deception",
+            "refusal": "path_contains_separator_homoglyph",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "The fullwidth reverse solidus."
+        },
+        {
+            "id": "len-0001",
+            "path_base64": "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh",
+            "hazard": "length",
+            "refusal": "path_segment_too_long",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "A single component past the 255-byte limit both ext4 and NTFS enforce. Refused with a code rather than left to surface as an errno from three layers down."
+        },
+        {
+            "id": "len-0002",
+            "path_base64": "YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYi9iYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiL2JiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIvYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYg==",
+            "hazard": "length",
+            "refusal": "path_too_long",
+            "on_posix": "confuses",
+            "on_windows": "confuses",
+            "note": "Every component legal, the whole path not. Refused above the configured budget; note this is a SEPARATE limit from the Windows MAX_PATH check, which depends on where the disk root is and so cannot live in a guard that never touches the filesystem."
+        },
+        {
+            "id": "emp-0001",
+            "path_base64": "",
+            "hazard": "empty-path",
+            "refusal": "path_is_empty",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "The empty string. Harmless, and refused, because `write(\"\", $content)` means the workspace directory itself and there is no version of that a caller wanted."
+        },
+        {
+            "id": "emp-0002",
+            "path_base64": "Lg==",
+            "hazard": "empty-path",
+            "refusal": "path_is_empty",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "The current directory."
+        },
+        {
+            "id": "emp-0003",
+            "path_base64": "Li8=",
+            "hazard": "empty-path",
+            "refusal": "path_is_empty",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "With a separator."
+        },
+        {
+            "id": "emp-0004",
+            "path_base64": "Li8u",
+            "hazard": "empty-path",
+            "refusal": "path_is_empty",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "Nothing, twice."
+        },
+        {
+            "id": "emp-0005",
+            "path_base64": "Li8uLw==",
+            "hazard": "empty-path",
+            "refusal": "path_is_empty",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "Nothing, twice, with separators \u2014 the case a normaliser that only strips a leading `./` gets wrong."
+        },
+        {
+            "id": "str-0001",
+            "path_base64": "ZG9jcy8uLi9yZXBvcnQubWQ=",
+            "hazard": "strictness",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "Resolves inside the workspace and is completely safe. Refused because resolving `..` correctly means being right every time, and refusing it means being right once. An agent has no reason to double back through a directory it just named."
+        },
+        {
+            "id": "str-0002",
+            "path_base64": "YS9iLy4uL2MudHh0",
+            "hazard": "strictness",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "The same trade, one level down."
+        },
+        {
+            "id": "str-0003",
+            "path_base64": "ZHJhZnR+MS50eHQ=",
+            "hazard": "strictness",
+            "refusal": "path_uses_short_name_alias",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "A perfectly reasonable filename that is indistinguishable from an 8.3 alias, because an 8.3 alias is exactly this shape. The cost of refusing the shape, named rather than discovered."
+        },
+        {
+            "id": "str-0004",
+            "path_base64": "Li5jYWNoZS9ub3Rlcy50eHQ=",
+            "hazard": "strictness",
+            "refusal": "path_traverses_outside_workspace",
+            "on_posix": "harmless",
+            "on_windows": "harmless",
+            "note": "A directory whose name merely STARTS with two dots. Safe, and refused, for the same reason: \"the segment begins with ..\" is a shape, and a guard that refuses shapes never has to be clever."
+        }
+    ]
+}
