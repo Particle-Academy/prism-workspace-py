@@ -5,7 +5,7 @@ import hashlib
 import os
 import re
 import shutil
-from collections.abc import AsyncIterator, Callable, Iterator
+from collections.abc import AsyncIterable, AsyncIterator, Callable, Iterable, Iterator
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -41,15 +41,27 @@ class PathRefused(ValueError):
 
 
 _DEVICES = {
-    "CON", "PRN", "AUX", "NUL", "CLOCK$", "CONIN$", "CONOUT$",
-    *(f"COM{i}" for i in range(10)), *(f"LPT{i}" for i in range(10)),
-    "COM¹", "COM²", "COM³", "LPT¹", "LPT²", "LPT³",
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
+    "CLOCK$",
+    "CONIN$",
+    "CONOUT$",
+    *(f"COM{i}" for i in range(10)),
+    *(f"LPT{i}" for i in range(10)),
+    "COM¹",
+    "COM²",
+    "COM³",
+    "LPT¹",
+    "LPT²",
+    "LPT³",
 }
-_INVISIBLE = re.compile("[\\u00ad\\u061c\\u200b-\\u200f\\u202a-\\u202e\\u2060-\\u2064\\u2066-\\u2069\\ufeff]")
-_HOMOGLYPH = re.compile("[\\u2044\\u2215\\u29f5\\u29f8\\ufe68\\uff0f\\uff3c]")
-_ENCODED = re.compile(
-    r"%(?:00|25|2e|2f|5c|[89a-f][0-9a-f])|%u[0-9a-f]{4}", re.IGNORECASE
+_INVISIBLE = re.compile(
+    "[\\u00ad\\u061c\\u200b-\\u200f\\u202a-\\u202e\\u2060-\\u2064\\u2066-\\u2069\\ufeff]"
 )
+_HOMOGLYPH = re.compile("[\\u2044\\u2215\\u29f5\\u29f8\\ufe68\\uff0f\\uff3c]")
+_ENCODED = re.compile(r"%(?:00|25|2e|2f|5c|[89a-f][0-9a-f])|%u[0-9a-f]{4}", re.IGNORECASE)
 _SHORT_ALIAS = re.compile(r"^[^./]{1,6}~[0-9]{1,4}(?:\.[^./]{1,3})?$")
 _HOME = re.compile(r"^~[\w.-]*$")
 
@@ -62,46 +74,67 @@ class PathGuard:
         self.max_segment_bytes = max_segment_bytes
 
     def guard(self, path: str | bytes) -> str:
-        if path in ("", b""): self._refuse(Refusal.EMPTY_PATH, path)
+        if path in ("", b""):
+            self._refuse(Refusal.EMPTY_PATH, path)
         if isinstance(path, bytes):
-            if len(path) > self.max_path_bytes: self._refuse(Refusal.TOO_LONG, path)
-            if b"\0" in path: self._refuse(Refusal.NULL_BYTE, path)
-            try: text = path.decode("utf-8")
-            except UnicodeDecodeError: self._refuse(Refusal.INVALID_ENCODING, path)
+            if len(path) > self.max_path_bytes:
+                self._refuse(Refusal.TOO_LONG, path)
+            if b"\0" in path:
+                self._refuse(Refusal.NULL_BYTE, path)
+            try:
+                text = path.decode("utf-8")
+            except UnicodeDecodeError:
+                self._refuse(Refusal.INVALID_ENCODING, path)
         else:
             text = path
         # Preserve PHP's contract order: the byte budget is checked before
         # invalid UTF-8. surrogatepass gives Python's otherwise-unencodable
         # code points a deterministic byte count without admitting them.
         measured_path = text.encode("utf-8", errors="surrogatepass")
-        if len(measured_path) > self.max_path_bytes: self._refuse(Refusal.TOO_LONG, text)
-        if "\0" in text: self._refuse(Refusal.NULL_BYTE, text)
-        try: text.encode("utf-8")
-        except UnicodeEncodeError: self._refuse(Refusal.INVALID_ENCODING, text)
-        if _INVISIBLE.search(text): self._refuse(Refusal.INVISIBLE_CHARACTER, text)
-        if _HOMOGLYPH.search(text): self._refuse(Refusal.SEPARATOR_HOMOGLYPH, text)
+        if len(measured_path) > self.max_path_bytes:
+            self._refuse(Refusal.TOO_LONG, text)
+        if "\0" in text:
+            self._refuse(Refusal.NULL_BYTE, text)
+        try:
+            text.encode("utf-8")
+        except UnicodeEncodeError:
+            self._refuse(Refusal.INVALID_ENCODING, text)
+        if _INVISIBLE.search(text):
+            self._refuse(Refusal.INVISIBLE_CHARACTER, text)
+        if _HOMOGLYPH.search(text):
+            self._refuse(Refusal.SEPARATOR_HOMOGLYPH, text)
         if any(0 < ord(char) < 32 or ord(char) == 127 for char in text):
             self._refuse(Refusal.CONTROL_CHARACTER, text)
-        if _ENCODED.search(text): self._refuse(Refusal.ENCODED_SEPARATOR, text)
-        if text.startswith(("\\\\", "//")): self._refuse(Refusal.UNC, text)
-        if re.match(r"^[A-Za-z]:", text): self._refuse(Refusal.ABSOLUTE, text)
+        if _ENCODED.search(text):
+            self._refuse(Refusal.ENCODED_SEPARATOR, text)
+        if text.startswith(("\\\\", "//")):
+            self._refuse(Refusal.UNC, text)
+        if re.match(r"^[A-Za-z]:", text):
+            self._refuse(Refusal.ABSOLUTE, text)
         folded = text.replace("\\", "/")
-        if folded.startswith("/"): self._refuse(Refusal.ABSOLUTE, text)
+        if folded.startswith("/"):
+            self._refuse(Refusal.ABSOLUTE, text)
         kept: list[str] = []
         for segment in folded.split("/"):
-            if segment in ("", "."): continue
+            if segment in ("", "."):
+                continue
             self._guard_segment(text, segment, not kept)
             kept.append(segment)
-        if not kept: self._refuse(Refusal.EMPTY_PATH, text)
+        if not kept:
+            self._refuse(Refusal.EMPTY_PATH, text)
         return "/".join(kept)
 
     def _guard_segment(self, path: str, segment: str, leading: bool) -> None:
-        if segment.startswith(".."): self._refuse(Refusal.TRAVERSAL, path)
-        if ":" in segment: self._refuse(Refusal.ALTERNATE_DATA_STREAM, path)
+        if segment.startswith(".."):
+            self._refuse(Refusal.TRAVERSAL, path)
+        if ":" in segment:
+            self._refuse(Refusal.ALTERNATE_DATA_STREAM, path)
         if segment.endswith((".", " ")) or segment.startswith(" "):
             self._refuse(Refusal.EDGE_DOT_OR_SPACE, path)
-        if leading and _HOME.match(segment): self._refuse(Refusal.HOME_EXPANSION, path)
-        if _SHORT_ALIAS.match(segment): self._refuse(Refusal.SHORT_NAME_ALIAS, path)
+        if leading and _HOME.match(segment):
+            self._refuse(Refusal.HOME_EXPANSION, path)
+        if _SHORT_ALIAS.match(segment):
+            self._refuse(Refusal.SHORT_NAME_ALIAS, path)
         if segment.split(".", 1)[0].upper() in _DEVICES:
             self._refuse(Refusal.RESERVED_DEVICE_NAME, path)
         if len(segment.encode("utf-8")) > self.max_segment_bytes:
@@ -135,6 +168,15 @@ class KeyedOwner(Protocol):
 
 WorkspaceIdentity: TypeAlias = str | WorkspaceOwner | KeyedOwner
 
+#: A path, as text or as RAW BYTES.
+#:
+#: Bytes because a path is a byte string in the reference, and because the
+#: corpus's byte-injection cases cannot be expressed as ``str`` at all -- an
+#: invalid UTF-8 sequence cannot survive the trip, so a text-only API could
+#: never carry the attack the guard exists to refuse. Everything downstream of
+#: ``_admit()`` sees the guarded text.
+WorkspacePath: TypeAlias = str | bytes
+
 
 def workspace_address(owner: WorkspaceIdentity, guard: PathGuard | None = None) -> str:
     if isinstance(owner, str):
@@ -148,6 +190,17 @@ def workspace_address(owner: WorkspaceIdentity, guard: PathGuard | None = None) 
     slug = re.sub(r"[^A-Za-z0-9]+", "-", key).lower().strip("-")[:48].rstrip("-") or "w"
     digest = hashlib.sha256(key.encode()).hexdigest()[:16]
     return (guard or PathGuard()).guard(f"{slug}-{digest}")
+
+
+def _printable(path: WorkspacePath) -> str:
+    """A path safe to put in a message.
+
+    Bytes render as hex rather than as ``b'...'``: a failure message is read by
+    a human, and the repr of a byte path hides exactly the invisible characters
+    the guard refused it for. Matches ``prism-workspace-ts``, which prints the
+    same ``0x...`` form.
+    """
+    return path if isinstance(path, str) else "0x" + path.hex()
 
 
 class LocalBoundary:
@@ -194,7 +247,9 @@ class LocalBoundary:
     @staticmethod
     def _within(root: Path, candidate: Path) -> bool:
         try:
-            return os.path.commonpath((os.path.normcase(root), os.path.normcase(candidate))) == os.path.normcase(root)
+            return os.path.commonpath(
+                (os.path.normcase(root), os.path.normcase(candidate))
+            ) == os.path.normcase(root)
         except ValueError:
             return False
 
@@ -237,44 +292,103 @@ class SyncWorkspace:
         self.boundary = LocalBoundary(self.root, windows_max_path)
         self.authorize = authorize
 
-    def path(self, path: str) -> str:
+    def path(self, path: WorkspacePath) -> str:
         return self.guard.guard(path)
 
-    def exists(self, path: str) -> bool:
+    def exists(self, path: WorkspacePath) -> bool:
         return self._absolute(self._admit(path, "read")).exists()
 
-    def read(self, path: str) -> str:
+    def read(self, path: WorkspacePath) -> str:
         try:
             return self._absolute(self._admit(path, "read")).read_text(encoding="utf-8")
         except FileNotFoundError as error:
-            raise WorkspaceFailed(Fault.FILE_MISSING, f"There is no [{path}] in this workspace.") from error
+            raise WorkspaceFailed(
+                Fault.FILE_MISSING, f"There is no [{_printable(path)}] in this workspace."
+            ) from error
 
-    def read_bytes(self, path: str) -> bytes:
+    def read_bytes(self, path: WorkspacePath) -> bytes:
         try:
             return self._absolute(self._admit(path, "read")).read_bytes()
         except FileNotFoundError as error:
-            raise WorkspaceFailed(Fault.FILE_MISSING, f"There is no [{path}] in this workspace.") from error
+            raise WorkspaceFailed(
+                Fault.FILE_MISSING, f"There is no [{_printable(path)}] in this workspace."
+            ) from error
 
-    def write(self, path: str, contents: str | bytes) -> SyncWorkspace:
+    def read_stream(self, path: WorkspacePath, chunk_size: int = 65536) -> Iterator[bytes]:
+        """Yield the file in chunks, for content too large to hold in memory.
+
+        The guard runs BEFORE the handle is opened, like every other read. A
+        streaming accessor that skipped it would be a hole straight through the
+        boundary this package exists to be, and it would look like an
+        optimisation.
+        """
+        absolute = self._absolute(self._admit(path, "read"))
+
+        try:
+            handle = absolute.open("rb")
+        except FileNotFoundError as error:
+            raise WorkspaceFailed(
+                Fault.FILE_MISSING, f"There is no [{_printable(path)}] in this workspace."
+            ) from error
+
+        # A generator so the caller streams, but the handle is closed on
+        # exhaustion AND on an early break -- the close is in `finally`, which a
+        # bare `yield from` over the file object would not give.
+        def chunks() -> Iterator[bytes]:
+            try:
+                while True:
+                    chunk = handle.read(chunk_size)
+                    if not chunk:
+                        return
+                    yield chunk
+            finally:
+                handle.close()
+
+        return chunks()
+
+    def write_stream(
+        self, path: WorkspacePath, source: Iterator[bytes] | Iterable[bytes]
+    ) -> SyncWorkspace:
+        """Write from an iterable of byte chunks, without buffering the payload."""
         target = self._absolute(self._admit(path, "write"))
         try:
             target.parent.mkdir(parents=True, exist_ok=True)
-            if isinstance(contents, str): target.write_text(contents, encoding="utf-8")
-            else: target.write_bytes(contents)
+            with target.open("wb") as handle:
+                for chunk in source:
+                    handle.write(chunk)
+        except OSError as error:
+            raise WorkspaceFailed(
+                Fault.WRITE_FAILED, f"Could not write [{_printable(path)}] to this workspace."
+            ) from error
+        return self
+
+    def write(self, path: WorkspacePath, contents: str | bytes) -> SyncWorkspace:
+        target = self._absolute(self._admit(path, "write"))
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if isinstance(contents, str):
+                target.write_text(contents, encoding="utf-8")
+            else:
+                target.write_bytes(contents)
             return self
         except OSError as error:
-            raise WorkspaceFailed(Fault.WRITE_FAILED, f"Could not write [{path}].") from error
+            raise WorkspaceFailed(
+                Fault.WRITE_FAILED, f"Could not write [{_printable(path)}]."
+            ) from error
 
     def append(self, path: str, contents: str) -> SyncWorkspace:
         target = self._absolute(self._admit(path, "write"))
         try:
             target.parent.mkdir(parents=True, exist_ok=True)
-            with target.open("a", encoding="utf-8") as stream: stream.write(contents)
+            with target.open("a", encoding="utf-8") as stream:
+                stream.write(contents)
             return self
         except OSError as error:
-            raise WorkspaceFailed(Fault.WRITE_FAILED, f"Could not append [{path}].") from error
+            raise WorkspaceFailed(
+                Fault.WRITE_FAILED, f"Could not append [{_printable(path)}]."
+            ) from error
 
-    def copy(self, source: str, destination: str) -> SyncWorkspace:
+    def copy(self, source: WorkspacePath, destination: WorkspacePath) -> SyncWorkspace:
         source_path = self._absolute(self._admit(source, "read"))
         destination_path = self._absolute(self._admit(destination, "write"))
         try:
@@ -282,9 +396,12 @@ class SyncWorkspace:
             shutil.copyfile(source_path, destination_path)
             return self
         except OSError as error:
-            raise WorkspaceFailed(Fault.WRITE_FAILED, f"Could not copy [{source}] to [{destination}].") from error
+            raise WorkspaceFailed(
+                Fault.WRITE_FAILED,
+                f"Could not copy [{_printable(source)}] to [{_printable(destination)}].",
+            ) from error
 
-    def move(self, source: str, destination: str) -> SyncWorkspace:
+    def move(self, source: WorkspacePath, destination: WorkspacePath) -> SyncWorkspace:
         source_path = self._absolute(self._admit(source, "write"))
         destination_path = self._absolute(self._admit(destination, "write"))
         try:
@@ -292,47 +409,64 @@ class SyncWorkspace:
             source_path.replace(destination_path)
             return self
         except OSError as error:
-            raise WorkspaceFailed(Fault.WRITE_FAILED, f"Could not move [{source}] to [{destination}].") from error
+            raise WorkspaceFailed(
+                Fault.WRITE_FAILED,
+                f"Could not move [{_printable(source)}] to [{_printable(destination)}].",
+            ) from error
 
-    def delete(self, path: str) -> SyncWorkspace:
+    def delete(self, path: WorkspacePath) -> SyncWorkspace:
         target = self._absolute(self._admit(path, "delete"))
         try:
             target.unlink(missing_ok=True)
             return self
         except OSError as error:
-            raise WorkspaceFailed(Fault.DELETE_FAILED, f"Could not delete [{path}].") from error
+            raise WorkspaceFailed(
+                Fault.DELETE_FAILED, f"Could not delete [{_printable(path)}]."
+            ) from error
 
-    def make_directory(self, path: str) -> SyncWorkspace:
+    def make_directory(self, path: WorkspacePath) -> SyncWorkspace:
         try:
             self._absolute(self._admit(path, "write")).mkdir(parents=True, exist_ok=True)
             return self
         except OSError as error:
-            raise WorkspaceFailed(Fault.WRITE_FAILED, f"Could not create [{path}].") from error
+            raise WorkspaceFailed(
+                Fault.WRITE_FAILED, f"Could not create [{_printable(path)}]."
+            ) from error
 
-    def delete_directory(self, path: str) -> SyncWorkspace:
+    def delete_directory(self, path: WorkspacePath) -> SyncWorkspace:
         try:
             shutil.rmtree(self._absolute(self._admit(path, "delete")), ignore_errors=False)
             return self
         except FileNotFoundError:
             return self
         except OSError as error:
-            raise WorkspaceFailed(Fault.DELETE_FAILED, f"Could not delete [{path}].") from error
+            raise WorkspaceFailed(
+                Fault.DELETE_FAILED, f"Could not delete [{_printable(path)}]."
+            ) from error
 
-    def size(self, path: str) -> int:
-        try: return self._absolute(self._admit(path, "read")).stat().st_size
+    def size(self, path: WorkspacePath) -> int:
+        try:
+            return self._absolute(self._admit(path, "read")).stat().st_size
         except FileNotFoundError as error:
-            raise WorkspaceFailed(Fault.FILE_MISSING, f"There is no [{path}] in this workspace.") from error
+            raise WorkspaceFailed(
+                Fault.FILE_MISSING, f"There is no [{_printable(path)}] in this workspace."
+            ) from error
 
-    def last_modified(self, path: str) -> int:
-        try: return int(self._absolute(self._admit(path, "read")).stat().st_mtime)
+    def last_modified(self, path: WorkspacePath) -> int:
+        try:
+            return int(self._absolute(self._admit(path, "read")).stat().st_mtime)
         except FileNotFoundError as error:
-            raise WorkspaceFailed(Fault.FILE_MISSING, f"There is no [{path}] in this workspace.") from error
+            raise WorkspaceFailed(
+                Fault.FILE_MISSING, f"There is no [{_printable(path)}] in this workspace."
+            ) from error
 
     def list(self, directory: str = "", recursive: bool = True) -> Iterator[WorkspaceEntry]:
         location = "" if directory == "" else self._admit(directory, "list")
-        if directory == "" and self.authorize: self.authorize("list", self, None)
+        if directory == "" and self.authorize:
+            self.authorize("list", self, None)
         start = self.root if location == "" else self._absolute(location)
-        if not start.exists(): return
+        if not start.exists():
+            return
         iterator = start.rglob("*") if recursive else start.iterdir()
         for child in iterator:
             relative_path = child.relative_to(self.root).as_posix()
@@ -340,16 +474,21 @@ class SyncWorkspace:
             yield WorkspaceEntry(relative_path, is_directory)
 
     def clear(self) -> SyncWorkspace:
-        if self.authorize: self.authorize("delete", self, None)
-        if not self.root.exists(): return self
+        if self.authorize:
+            self.authorize("delete", self, None)
+        if not self.root.exists():
+            return self
         for child in self.root.iterdir():
-            if child.is_dir() and not child.is_symlink(): shutil.rmtree(child)
-            else: child.unlink()
+            if child.is_dir() and not child.is_symlink():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
         return self
 
-    def _admit(self, path: str, ability: Ability) -> str:
+    def _admit(self, path: WorkspacePath, ability: Ability) -> str:
         guarded = self.guard.guard(path)
-        if self.authorize: self.authorize(ability, self, guarded)
+        if self.authorize:
+            self.authorize(ability, self, guarded)
         self.boundary.admit(guarded)
         return guarded
 
@@ -379,42 +518,123 @@ class Workspace:
         self.address = self.sync.address
         self.root = self.sync.root
 
-    async def exists(self, path: str) -> bool: return await asyncio.to_thread(self.sync.exists, path)
-    async def read(self, path: str) -> str: return await asyncio.to_thread(self.sync.read, path)
-    async def read_bytes(self, path: str) -> bytes: return await asyncio.to_thread(self.sync.read_bytes, path)
-    async def write(self, path: str, contents: str | bytes) -> Workspace:
-        await asyncio.to_thread(self.sync.write, path, contents); return self
+    async def exists(self, path: WorkspacePath) -> bool:
+        return await asyncio.to_thread(self.sync.exists, path)
+
+    async def read(self, path: WorkspacePath) -> str:
+        return await asyncio.to_thread(self.sync.read, path)
+
+    async def read_bytes(self, path: WorkspacePath) -> bytes:
+        return await asyncio.to_thread(self.sync.read_bytes, path)
+
+    async def write(self, path: WorkspacePath, contents: str | bytes) -> Workspace:
+        await asyncio.to_thread(self.sync.write, path, contents)
+        return self
+
     async def append(self, path: str, contents: str) -> Workspace:
-        await asyncio.to_thread(self.sync.append, path, contents); return self
-    async def copy(self, source: str, destination: str) -> Workspace:
-        await asyncio.to_thread(self.sync.copy, source, destination); return self
-    async def move(self, source: str, destination: str) -> Workspace:
-        await asyncio.to_thread(self.sync.move, source, destination); return self
-    async def delete(self, path: str) -> Workspace:
-        await asyncio.to_thread(self.sync.delete, path); return self
-    async def make_directory(self, path: str) -> Workspace:
-        await asyncio.to_thread(self.sync.make_directory, path); return self
-    async def delete_directory(self, path: str) -> Workspace:
-        await asyncio.to_thread(self.sync.delete_directory, path); return self
-    async def size(self, path: str) -> int: return await asyncio.to_thread(self.sync.size, path)
-    async def last_modified(self, path: str) -> int:
+        await asyncio.to_thread(self.sync.append, path, contents)
+        return self
+
+    async def copy(self, source: WorkspacePath, destination: WorkspacePath) -> Workspace:
+        await asyncio.to_thread(self.sync.copy, source, destination)
+        return self
+
+    async def move(self, source: WorkspacePath, destination: WorkspacePath) -> Workspace:
+        await asyncio.to_thread(self.sync.move, source, destination)
+        return self
+
+    async def delete(self, path: WorkspacePath) -> Workspace:
+        await asyncio.to_thread(self.sync.delete, path)
+        return self
+
+    async def make_directory(self, path: WorkspacePath) -> Workspace:
+        await asyncio.to_thread(self.sync.make_directory, path)
+        return self
+
+    async def delete_directory(self, path: WorkspacePath) -> Workspace:
+        await asyncio.to_thread(self.sync.delete_directory, path)
+        return self
+
+    async def size(self, path: WorkspacePath) -> int:
+        return await asyncio.to_thread(self.sync.size, path)
+
+    async def last_modified(self, path: WorkspacePath) -> int:
         return await asyncio.to_thread(self.sync.last_modified, path)
-    async def list(self, directory: str = "", recursive: bool = True) -> AsyncIterator[WorkspaceEntry]:
+
+    async def list(
+        self, directory: str = "", recursive: bool = True
+    ) -> AsyncIterator[WorkspaceEntry]:
         iterator = self.sync.list(directory, recursive)
         while True:
             entry = await asyncio.to_thread(_next_entry, iterator)
-            if entry is None: return
+            if entry is None:
+                return
             yield entry
+
     async def clear(self) -> Workspace:
-        await asyncio.to_thread(self.sync.clear); return self
+        await asyncio.to_thread(self.sync.clear)
+        return self
+
+    def path(self, path: WorkspacePath) -> str:
+        """The guarded path. Pure and synchronous -- no filesystem, nothing to await.
+
+        Present on this class and not only on ``self.sync`` because ``prism-ts``
+        exposes it on the async surface, and reaching through a facade attribute
+        to answer the same question is a difference a caller can trip on.
+        """
+        return self.sync.path(path)
+
+    async def read_stream(
+        self, path: WorkspacePath, chunk_size: int = 65536
+    ) -> AsyncIterator[bytes]:
+        """Yield the file in chunks. The guard runs before the handle is opened."""
+        iterator = self.sync.read_stream(path, chunk_size)
+        while True:
+            chunk = await asyncio.to_thread(_next_chunk, iterator)
+            if chunk is None:
+                return
+            yield chunk
+
+    async def write_stream(
+        self, path: WorkspacePath, source: AsyncIterable[bytes] | Iterable[bytes]
+    ) -> Workspace:
+        """Write from a stream of byte chunks, sync or async.
+
+        An async source is drained here rather than inside the worker thread:
+        an async iterator belongs to the event loop that created it, and pulling
+        from it off-loop is a race rather than a slowdown.
+        """
+        if isinstance(source, AsyncIterable):
+            chunks = [chunk async for chunk in source]
+            await asyncio.to_thread(self.sync.write_stream, path, iter(chunks))
+        else:
+            await asyncio.to_thread(self.sync.write_stream, path, iter(source))
+        return self
+
+
+def _next_chunk(iterator: Iterator[bytes]) -> bytes | None:
+    try:
+        return next(iterator)
+    except StopIteration:
+        return None
 
 
 def _next_entry(iterator: Iterator[WorkspaceEntry]) -> WorkspaceEntry | None:
-    try: return next(iterator)
-    except StopIteration: return None
+    try:
+        return next(iterator)
+    except StopIteration:
+        return None
 
 
 __all__ = [
-    "Fault", "LocalBoundary", "PathGuard", "PathRefused", "Refusal", "SyncWorkspace",
-    "Workspace", "WorkspaceEntry", "WorkspaceFailed", "workspace_address",
+    "Fault",
+    "LocalBoundary",
+    "PathGuard",
+    "PathRefused",
+    "Refusal",
+    "SyncWorkspace",
+    "Workspace",
+    "WorkspaceEntry",
+    "WorkspaceFailed",
+    "workspace_address",
 ]
