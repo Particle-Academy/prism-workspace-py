@@ -7,7 +7,27 @@ codes, lexical path guarding, and realpath-based symlink containment.
 
 Zero runtime dependencies. Python 3.10+.
 
-This package is private while coordinated parity work is in progress.
+```
+pip install prism-ai-workspace
+```
+
+```python
+from prism_workspace import PathRefused, SyncWorkspace
+
+workspace = SyncWorkspace("/srv/agent-workspaces", "user:7")
+
+workspace.write("notes/today.md", "# Today")
+print(workspace.read("notes/today.md"))
+
+try:
+    workspace.read("../../etc/passwd")
+except PathRefused as refused:
+    print(refused.code)
+```
+
+Each owner gets its own directory under the base, derived from the owner's key.
+The owner is a string, or anything with `workspace_key()` or `key()`, such as a
+`prism-ai-harness` session.
 
 ## Verify it on YOUR disk
 
